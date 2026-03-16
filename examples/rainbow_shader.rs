@@ -17,8 +17,7 @@ use bevy_bitmap_text::*;
 const FONT_NAME: &str = "SourceHanSansCN-Light";
 const SIZE: u32 = 48;
 
-const RAINBOW_SHADER_HANDLE: Handle<Shader> =
-    uuid_handle!("f00ba4ca-feba-be12-3456-780000000001");
+const RAINBOW_SHADER_HANDLE: Handle<Shader> = uuid_handle!("f00ba4ca-feba-be12-3456-780000000001");
 
 const RAINBOW_WGSL: &str = r#"
 #import bevy_sprite::mesh2d_vertex_output::VertexOutput
@@ -92,6 +91,10 @@ struct ShaderRainbow;
 #[derive(Component)]
 struct ConvertedToMesh;
 
+const WAVE_AMPLITUDE: f32 = 8.0;
+const WAVE_FREQUENCY: f32 = 4.0;
+const WAVE_PHASE_STEP: f32 = 0.5;
+
 fn main() {
     let mut app = App::new();
 
@@ -117,7 +120,7 @@ fn main() {
 
     app.add_systems(Startup, setup)
         .add_systems(PostUpdate, convert_glyphs_to_mesh.after(BitmapTextSet))
-        .add_systems(Update, update_rainbow_time)
+        .add_systems(Update, (update_rainbow_time, wave_animation_system))
         .run();
 }
 
@@ -220,11 +223,27 @@ fn build_glyph_mesh(
     meshes.add(mesh)
 }
 
-fn update_rainbow_time(
-    time: Res<Time>,
-    mut materials: ResMut<Assets<RainbowGlyphMaterial>>,
-) {
+fn update_rainbow_time(time: Res<Time>, mut materials: ResMut<Assets<RainbowGlyphMaterial>>) {
     for (_, material) in materials.iter_mut() {
         material.params.time = time.elapsed_secs();
+    }
+}
+
+fn wave_animation_system(
+    time: Res<Time>,
+    rainbow_query: Query<&Children, With<ShaderRainbow>>,
+    mut glyph_query: Query<(&GlyphEntity, &GlyphBaseOffset, &mut Transform)>,
+) {
+    let t = time.elapsed_secs();
+    for children in rainbow_query.iter() {
+        for child in children.iter() {
+            let Ok((glyph, base, mut transform)) = glyph_query.get_mut(child) else {
+                continue;
+            };
+            let phase = glyph.char_index as f32 * WAVE_PHASE_STEP;
+            let offset = (t * WAVE_FREQUENCY + phase).sin() * WAVE_AMPLITUDE;
+            transform.translation.x = base.0.x;
+            transform.translation.y = base.0.y + offset;
+        }
     }
 }
