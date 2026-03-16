@@ -89,8 +89,7 @@ fn typewriter_animation_system(
         let elapsed = anim.elapsed;
 
         for child in children.iter() {
-            let Ok((glyph, base, mut transform, mut sprite, mut vis)) =
-                glyph_query.get_mut(child)
+            let Ok((glyph, base, mut transform, mut sprite, mut vis)) = glyph_query.get_mut(child)
             else {
                 continue;
             };
