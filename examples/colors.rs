@@ -1,6 +1,6 @@
 //! # Color Text Demo
 //!
-//! Demonstrates per-segment text coloring: red, purple, and rainbow gradient.
+//! Demonstrates per-segment text coloring: red, purple, and scrolling rainbow gradient.
 //!
 //! Font: Source Han Sans CN Light (思源黑体 CN Light)
 //! Copyright 2014-2021 Adobe — SIL Open Font License 1.1
@@ -11,6 +11,7 @@ use bevy_bitmap_text::*;
 
 const FONT_NAME: &str = "SourceHanSansCN-Light";
 const SIZE: u32 = 40;
+const RAINBOW_SPEED: f32 = 0.3;
 
 fn main() {
     App::new()
@@ -24,8 +25,12 @@ fn main() {
         }))
         .add_plugins(BitmapTextPlugin::default())
         .add_systems(Startup, setup)
+        .add_systems(Update, scroll_rainbow_system)
         .run();
 }
+
+#[derive(Component)]
+struct RainbowText;
 
 fn setup(mut commands: Commands, mut cache: ResMut<DynamicGlyphCache>) {
     commands.spawn(Camera2d);
@@ -67,33 +72,34 @@ fn setup(mut commands: Commands, mut cache: ResMut<DynamicGlyphCache>) {
         Transform::from_xyz(0.0, 50.0, 0.0),
     ));
 
-    // --- Rainbow gradient text (per-character segment) ---
-    let rainbow_text = "Rainbow 彩虹渐变文字!";
-    let segments = build_rainbow_segments(rainbow_text);
+    // --- Scrolling rainbow text (per-character, animated) ---
     commands.spawn((
-        TextBlock::from_segments(segments),
+        RainbowText,
+        TextBlock::new("Rainbow 彩虹渐变文字!"),
         base_styling,
         Transform::from_xyz(0.0, -50.0, 0.0),
     ));
 }
 
-fn build_rainbow_segments(text: &str) -> Vec<TextSegment> {
-    let chars: Vec<char> = text.chars().collect();
-    let count = chars.len().max(1) as f32;
+fn scroll_rainbow_system(
+    time: Res<Time>,
+    rainbow_query: Query<(&TextBlockLayout, &TextBlockStyling, &Children), With<RainbowText>>,
+    mut glyph_query: Query<(&GlyphBaseOffset, &mut Sprite), With<GlyphEntity>>,
+) {
+    for (layout, styling, children) in rainbow_query.iter() {
+        let scale = styling.world_scale / styling.size_px as f32;
+        let block_width = layout.dimension.x * scale;
+        if block_width <= 0.0 {
+            continue;
+        }
 
-    chars
-        .into_iter()
-        .enumerate()
-        .map(|(i, ch)| {
-            let hue = (i as f32 / count) * 360.0;
-            let color = Hsla::new(hue, 1.0, 0.6, 1.0);
-
-            TextSegment {
-                text: ch.to_string(),
-                style: SegmentStyle {
-                    color: Some(Srgba::from(color)),
-                },
-            }
-        })
-        .collect()
+        for child in children.iter() {
+            let Ok((base, mut sprite)) = glyph_query.get_mut(child) else {
+                continue;
+            };
+            let normalized_x = (base.0.x / block_width).rem_euclid(1.0);
+            let hue = (normalized_x + time.elapsed_secs() * RAINBOW_SPEED).rem_euclid(1.0) * 360.0;
+            sprite.color = Srgba::from(Hsla::new(hue, 1.0, 0.6, 1.0)).into();
+        }
+    }
 }
