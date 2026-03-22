@@ -1,3 +1,18 @@
+//! # parse.rs
+//!
+//! # parse.rs 文件
+//!
+//! ## Module Overview
+//!
+//! ## 模块概述
+//!
+//! This file parses the lightweight inline markup accepted by `bevy_bitmap_text`. It preserves
+//! whitespace, recognizes color-tag segments, and converts a raw source string into the segmented
+//! `TextBlock` structure that the layout and rendering pipeline consumes.
+//!
+//! 这个文件负责解析 `bevy_bitmap_text` 接受的轻量级行内标记。它会保留空白，识别带颜色的
+//! 文本片段，并把原始字符串转换成排版和渲染管线会消费的 `TextBlock` 分段结构。
+
 use bevy::color::Srgba;
 
 use crate::components::{SegmentStyle, TextBlock, TextSegment};

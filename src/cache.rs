@@ -1,3 +1,18 @@
+//! # cache.rs
+//!
+//! # cache.rs 文件
+//!
+//! ## Module Overview
+//!
+//! ## 模块概述
+//!
+//! This file implements the dynamic glyph atlas used by `bevy_bitmap_text`. It rasterizes glyphs
+//! on demand, packs them into a shared texture atlas, and exposes the cached metrics that the
+//! layout and sprite-sync systems need.
+//!
+//! 这个文件实现了 `bevy_bitmap_text` 使用的动态字形图集。它会按需栅格化字形，把结果打包进
+//! 共享纹理图集，并对外提供排版系统和精灵同步系统所需的缓存度量信息。
+
 use std::collections::HashMap;
 
 use bevy::image::Image;
