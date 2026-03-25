@@ -110,6 +110,7 @@ impl DynamicGlyphCache {
         let settings = fontdue::FontSettings {
             collection_index: 0,
             scale: 40.0,
+            ..Default::default()
         };
         let font = fontdue::Font::from_bytes(data, settings)
             .map_err(|e| format!("Failed to load font {:?}: {}", id, e))?;
