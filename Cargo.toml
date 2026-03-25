@@ -21,7 +21,7 @@ bevy = { version = "0.18", default-features = false, features = [
     "bevy_state",
 ] }
 fontdue = "0.7"
-etagere = "0.2"
+etagere = "0.3"
 log = "0.4"
 
 [dev-dependencies]
