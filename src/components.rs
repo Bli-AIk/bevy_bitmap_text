@@ -1,3 +1,18 @@
+//! # components.rs
+//!
+//! # components.rs 文件
+//!
+//! ## Module Overview
+//!
+//! ## 模块概述
+//!
+//! Defines the ECS data model for bitmap text rendering. It covers authored text blocks,
+//! per-glyph layout records, styling and anchor choices, and the small effect components that are
+//! later interpreted by the rendering systems.
+//!
+//! 定义了位图文本渲染所依赖的 ECS 数据模型。它包括作者侧的文本块、逐字形的排版记录、
+//! 样式与锚点选择，以及后续渲染系统会解释的小型效果组件。
+
 use bevy::color::Srgba;
 use bevy::math::{Rect, Vec2};
 use bevy::prelude::*;

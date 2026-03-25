@@ -1,3 +1,18 @@
+//! # layout.rs
+//!
+//! # layout.rs 文件
+//!
+//! ## Module Overview
+//!
+//! ## 模块概述
+//!
+//! Contains the pure layout algorithm for bitmap text blocks. Given styled text and the
+//! glyph metrics from the cache, it computes line wrapping, alignment, anchoring, and the final
+//! per-glyph positions without touching ECS or spawning entities.
+//!
+//! 包含位图文本块的纯排版算法。它根据带样式的文本和缓存里的字形度量，计算换行、
+//! 对齐、锚点偏移以及最终逐字形位置，但不会直接操作 ECS 或生成实体。
+
 use bevy::math::{Rect, Vec2};
 
 use crate::cache::DynamicGlyphCache;
