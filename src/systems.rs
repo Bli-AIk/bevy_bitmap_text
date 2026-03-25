@@ -6,11 +6,11 @@
 //!
 //! ## 模块概述
 //!
-//! This file contains the ECS systems that keep bitmap text entities synchronized with their data.
+//! Contains the ECS systems that keep bitmap text entities synchronized with their data.
 //! It rasterizes required glyphs, recomputes layout when text changes, spawns and updates glyph
 //! child entities, and applies reveal state to the final rendered characters.
 //!
-//! 这个文件包含让位图文本实体与其数据保持同步的 ECS 系统。它会栅格化所需字形，在文本变化时
+//! 包含让位图文本实体与其数据保持同步的 ECS 系统。它会栅格化所需字形，在文本变化时
 //! 重新计算布局，生成并更新逐字形子实体，并把 reveal 状态应用到最终渲染出的字符上。
 
 use bevy::prelude::*;
