@@ -20,7 +20,7 @@ pub mod layout;
 pub mod parse;
 pub mod systems;
 
-pub use cache::{DynamicGlyphCache, GlyphCacheConfig, GlyphInfo, GlyphKey};
+pub use cache::{DynamicGlyphCache, GlyphAlphaMode, GlyphCacheConfig, GlyphInfo, GlyphKey};
 pub use components::{
     GlyphBaseOffset, GlyphEntity, GlyphReveal, LayoutGlyph, SegmentStyle, ShakeEffect, TextAlign,
     TextAnchor, TextBlock, TextBlockLayout, TextBlockStyling, TextSegment, WaveEffect,

@@ -49,6 +49,17 @@ pub struct GlyphCacheConfig {
     pub atlas_height: u32,
     /// Padding around each glyph in the atlas (prevents bleeding).
     pub glyph_padding: u32,
+    /// How glyph coverage should be written into the atlas alpha channel.
+    pub alpha_mode: GlyphAlphaMode,
+}
+
+/// Controls how rasterized glyph coverage is converted into atlas alpha.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GlyphAlphaMode {
+    /// Preserve fontdue's anti-aliased coverage values.
+    Smooth,
+    /// Quantize coverage into fully transparent or fully opaque pixels.
+    Binary { threshold: u8 },
 }
 
 impl Default for GlyphCacheConfig {
@@ -57,6 +68,7 @@ impl Default for GlyphCacheConfig {
             atlas_width: 2048,
             atlas_height: 2048,
             glyph_padding: 1,
+            alpha_mode: GlyphAlphaMode::Smooth,
         }
     }
 }
@@ -152,7 +164,14 @@ impl DynamicGlyphCache {
         let glyph_y = rect.min.y + pad;
 
         if let Some(image) = images.get_mut(self.atlas_image.id()) {
-            write_glyph_to_atlas(image, &bitmap, &metrics, glyph_x as usize, glyph_y as usize);
+            write_glyph_to_atlas(
+                image,
+                &bitmap,
+                &metrics,
+                glyph_x as usize,
+                glyph_y as usize,
+                self.config.alpha_mode,
+            );
             self.atlas_dirty = true;
         }
 
@@ -279,6 +298,7 @@ fn write_glyph_to_atlas(
     metrics: &fontdue::Metrics,
     glyph_x: usize,
     glyph_y: usize,
+    alpha_mode: GlyphAlphaMode,
 ) {
     let atlas_w = image.width() as usize;
     let pixel_size = 4; // RGBA8
@@ -289,7 +309,7 @@ fn write_glyph_to_atlas(
     for row in 0..metrics.height {
         for col in 0..metrics.width {
             let src_idx = row * metrics.width + col;
-            let coverage = bitmap[src_idx];
+            let coverage = apply_alpha_mode(bitmap[src_idx], alpha_mode);
             let dst_x = glyph_x + col;
             let dst_y = glyph_y + row;
             let dst_idx = (dst_y * atlas_w + dst_x) * pixel_size;
@@ -301,5 +321,49 @@ fn write_glyph_to_atlas(
                 data[dst_idx + 3] = coverage; // A
             }
         }
+    }
+}
+
+fn apply_alpha_mode(coverage: u8, alpha_mode: GlyphAlphaMode) -> u8 {
+    match alpha_mode {
+        GlyphAlphaMode::Smooth => coverage,
+        GlyphAlphaMode::Binary { threshold } => {
+            if coverage >= threshold {
+                255
+            } else {
+                0
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn binary_alpha_mode_quantizes_coverage() {
+        assert_eq!(
+            apply_alpha_mode(0, GlyphAlphaMode::Binary { threshold: 128 }),
+            0
+        );
+        assert_eq!(
+            apply_alpha_mode(127, GlyphAlphaMode::Binary { threshold: 128 }),
+            0
+        );
+        assert_eq!(
+            apply_alpha_mode(128, GlyphAlphaMode::Binary { threshold: 128 }),
+            255
+        );
+        assert_eq!(
+            apply_alpha_mode(255, GlyphAlphaMode::Binary { threshold: 128 }),
+            255
+        );
+    }
+
+    #[test]
+    fn smooth_alpha_mode_preserves_coverage() {
+        assert_eq!(apply_alpha_mode(64, GlyphAlphaMode::Smooth), 64);
+        assert_eq!(apply_alpha_mode(192, GlyphAlphaMode::Smooth), 192);
     }
 }
