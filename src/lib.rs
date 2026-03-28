@@ -68,7 +68,6 @@ impl Plugin for BitmapTextPlugin {
                 layout_text_system.after(rasterize_glyphs_system),
                 sync_glyph_entities_system.after(layout_text_system),
                 glyph_reveal_system.after(sync_glyph_entities_system),
-                show_text_when_ready_system.after(glyph_reveal_system),
             )
                 .in_set(BitmapTextSet),
         );

@@ -199,17 +199,6 @@ fn spawn_single_glyph(
     Some(glyph_entity)
 }
 
-/// Show text block when layout is ready (transition from Hidden to Inherited).
-pub fn show_text_when_ready_system(
-    mut query: Query<(&TextBlockLayout, &mut Visibility), Changed<TextBlockLayout>>,
-) {
-    for (text_layout, mut visibility) in query.iter_mut() {
-        if !text_layout.glyphs.is_empty() && *visibility == Visibility::Hidden {
-            *visibility = Visibility::Inherited;
-        }
-    }
-}
-
 /// Update glyph visibility when `GlyphReveal` changes.
 pub fn glyph_reveal_system(
     reveal_query: Query<(&GlyphReveal, &Children), Changed<GlyphReveal>>,
