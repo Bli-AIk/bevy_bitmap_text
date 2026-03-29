@@ -20,14 +20,14 @@ use bevy::prelude::*;
 use crate::font_id::FontId;
 
 /// A text segment with optional per-segment styling.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Reflect)]
 pub struct TextSegment {
     pub text: String,
     pub style: SegmentStyle,
 }
 
 /// Per-segment styling override.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Reflect)]
 pub struct SegmentStyle {
     pub color: Option<Srgba>,
 }
@@ -36,7 +36,8 @@ pub struct SegmentStyle {
 ///
 /// When this component changes, the layout and glyph entity systems
 /// automatically recalculate positions and synchronize child entities.
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Reflect)]
+#[reflect(Component)]
 #[require(TextBlockStyling, TextBlockLayout)]
 pub struct TextBlock {
     pub segments: Vec<TextSegment>,
@@ -122,9 +123,9 @@ impl TextAnchor {
 
 /// Styling configuration for a text block.
 #[derive(Component, Debug, Clone, Reflect)]
+#[reflect(Component)]
 pub struct TextBlockStyling {
     /// Font identifier (must be registered in `DynamicGlyphCache`).
-    #[reflect(ignore)]
     pub font: FontId,
     /// Rasterization size in pixels (e.g. 32).
     pub size_px: u32,
@@ -164,7 +165,8 @@ impl Default for TextBlockStyling {
 }
 
 /// Computed layout for a text block (populated by the layout system).
-#[derive(Component, Debug, Clone, Default)]
+#[derive(Component, Debug, Clone, Default, Reflect)]
+#[reflect(Component)]
 pub struct TextBlockLayout {
     /// Per-glyph layout information.
     pub glyphs: Vec<LayoutGlyph>,
@@ -173,7 +175,7 @@ pub struct TextBlockLayout {
 }
 
 /// Layout information for a single glyph.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Reflect)]
 pub struct LayoutGlyph {
     /// Index in the original text string (char index, not byte index).
     pub char_index: usize,
@@ -192,7 +194,8 @@ pub struct LayoutGlyph {
 }
 
 /// Marker component for a glyph child entity.
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Reflect)]
+#[reflect(Component)]
 pub struct GlyphEntity {
     /// Character index in the parent TextBlock.
     pub char_index: usize,
@@ -202,7 +205,8 @@ pub struct GlyphEntity {
 
 /// Stores the base layout offset for a glyph entity.
 /// Animation systems can modify `Transform` while this records the "home" position.
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Reflect)]
+#[reflect(Component)]
 pub struct GlyphBaseOffset(pub Vec2);
 
 /// Controls progressive glyph reveal (typewriter effect).
@@ -212,7 +216,8 @@ pub struct GlyphBaseOffset(pub Vec2);
 /// `visible_count` have `Visibility::Hidden`.
 ///
 /// Absent by default — all glyphs are visible.
-#[derive(Component, Debug, Clone, Default)]
+#[derive(Component, Debug, Clone, Default, Reflect)]
+#[reflect(Component)]
 pub struct GlyphReveal {
     pub visible_count: usize,
 }
@@ -221,7 +226,8 @@ pub struct GlyphReveal {
 ///
 /// While present on a `GlyphEntity`, the glyph's transform is randomly
 /// jittered each frame around its `GlyphBaseOffset`.
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Reflect)]
+#[reflect(Component)]
 pub struct ShakeEffect {
     /// Maximum pixel offset in each axis.
     pub intensity: f32,
@@ -233,7 +239,8 @@ pub struct ShakeEffect {
 ///
 /// While present on a `GlyphEntity`, the glyph oscillates vertically
 /// in a sine-wave pattern seeded by its `char_index`.
-#[derive(Component, Debug, Clone)]
+#[derive(Component, Debug, Clone, Reflect)]
+#[reflect(Component)]
 pub struct WaveEffect {
     /// Peak amplitude in pixels.
     pub amplitude: f32,

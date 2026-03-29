@@ -55,6 +55,21 @@ impl Plugin for BitmapTextPlugin {
         let cache = DynamicGlyphCache::new(self.atlas_config.clone(), &mut images);
         app.insert_resource(cache);
 
+        app.register_type::<FontId>()
+            .register_type::<TextAlign>()
+            .register_type::<TextAnchor>()
+            .register_type::<TextSegment>()
+            .register_type::<SegmentStyle>()
+            .register_type::<TextBlock>()
+            .register_type::<TextBlockStyling>()
+            .register_type::<TextBlockLayout>()
+            .register_type::<LayoutGlyph>()
+            .register_type::<GlyphEntity>()
+            .register_type::<GlyphBaseOffset>()
+            .register_type::<GlyphReveal>()
+            .register_type::<ShakeEffect>()
+            .register_type::<WaveEffect>();
+
         // Register system set.
         app.configure_sets(
             PostUpdate,
