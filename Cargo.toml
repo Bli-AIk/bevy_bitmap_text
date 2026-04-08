@@ -25,4 +25,11 @@ etagere = "0.3"
 log = "0.4"
 
 [dev-dependencies]
-bevy = { version = "0.18", default-features = false, features = ["bevy_winit", "default_font", "x11"] }
+bevy = { version = "0.18", default-features = false, features = [
+    "bevy_log",
+    "bevy_sprite_render",
+    "bevy_ui",
+    "bevy_winit",
+    "default_font",
+    "x11",
+] }
