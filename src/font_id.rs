@@ -10,7 +10,7 @@
 //! exists so systems and assets can refer to registered fonts by stable names instead of passing
 //! raw strings around everywhere.
 //!
-//! 定义了位图文本 crate 内部共享的轻量级字体标识类型。它的作用是让系统和资产可以用
+//! 定义了位图文本 crate 内部共享的轻量级字体标识类型。它的作用是让系统和资源可以用
 //! 稳定名称引用已注册字体，而不是在各处直接传裸字符串。
 
 use bevy::prelude::*;

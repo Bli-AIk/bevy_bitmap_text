@@ -131,7 +131,7 @@
 
 | Crate                                       | 版本   | 说明                  |
 |---------------------------------------------|------|---------------------|
-| [bevy](https://crates.io/crates/bevy)       | 0.18 | 游戏引擎框架（资产、颜色、渲染、精灵） |
+| [bevy](https://crates.io/crates/bevy)       | 0.18 | 游戏引擎框架（资源、颜色、渲染、精灵） |
 | [fontdue](https://crates.io/crates/fontdue) | 0.7  | 轻量级字体光栅化            |
 | [etagere](https://crates.io/crates/etagere) | 0.2  | 矩形图集装箱              |
 | [log](https://crates.io/crates/log)         | 0.4  | 日志门面                |
