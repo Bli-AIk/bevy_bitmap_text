@@ -13,25 +13,33 @@
 
 ## Introduction
 
-`bevy_bitmap_text` is a text rendering backend for [Bevy](https://bevyengine.org/) that spawns each character as an
-individual ECS entity with a `Sprite` component.  
-It solves the limitation of monolithic text meshes, allowing users to apply per-character ECS-driven animations such as
-shake, wave, and color changes.
+Standard text rendering in game engines is usually a monolith: an entire sentence gets baked into a single mesh. But
+what if you want just *one* specific letter to shake violently, bounce up and down, or dynamically shift its color?
+Especially for pixel games, trying to achieve that classic, expressive "retro" feel within high-level modern text
+systems can be surprisingly frustrating.
 
-With `bevy_bitmap_text`, you only need to add a `TextBlock` component and configure `TextBlockStyling` — the plugin
-handles rasterization, atlas packing, layout, and entity synchronization automatically.
+So I thought: why not simplify everything and go back to the bitmap approach? That's how `bevy_bitmap_text` came to be.
+It is a text rendering backend for [Bevy](https://bevyengine.org/) that spawns **each character as its own independent
+ECS entity** with a `Sprite` component.
+
+By treating glyphs as individual bitmap sprites, it hands the power back to Bevy's standard ECS. You want a word to wave
+like a flag? Just attach a `WaveEffect` component to those character entities. The plugin automatically handles the
+heavy lifting: on-the-fly font rasterization, atlas packing, layout, and keeping all those entities synchronized.
+
+— that's it, a simple text alternative. Take it if you want.
 
 ## Features
 
-* **Glyph-as-Entity architecture** — each character is a separate `Sprite` entity, enabling per-character animation and
-  styling via standard ECS
-* **Dynamic glyph atlas** — on-demand rasterization with [fontdue](https://github.com/mooman219/fontdue) and rectangle
+* 🧩 **Glyph-as-Entity architecture** — each character is a separate `Sprite` entity, enabling per-character animation
+  and styling via standard ECS
+* 🔠 **Dynamic glyph atlas** — on-demand rasterization with [fontdue](https://github.com/mooman219/fontdue) and rectangle
   packing via [etagere](https://crates.io/crates/etagere)
-* **Typewriter effect** — built-in `GlyphReveal` component for progressive character reveal
-* **Per-character effects** — `ShakeEffect` and `WaveEffect` components for jitter and sine-wave animations
-* **Color tags** — inline `{#RRGGBB:text}` markup for per-segment coloring
-* **Text styling** — configurable font, size, color, alignment, anchor, line height, character spacing, and word spacing
-* **Auto line-wrapping** — optional `max_width` for automatic word wrap
+* ⌨️ **Typewriter effect** — built-in `GlyphReveal` component for progressive character reveal
+* ✨ **Per-character effects** — `ShakeEffect` and `WaveEffect` components for jitter and sine-wave animations
+* 🎨 **Color tags** — inline `{#RRGGBB:text}` markup for per-segment coloring
+* 🖌️ **Text styling** — configurable font, size, color, alignment, anchor, line height, character spacing, and word
+  spacing
+* ↩️ **Auto line-wrapping** — optional `max_width` for automatic word wrap
 
 ## How to Use
 

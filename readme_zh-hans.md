@@ -3,8 +3,6 @@
 [![license](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue)](LICENSE-APACHE)
 <img src="https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white" />
 
-> 当前状态：🚧 早期开发中（初始版本开发中）
-
 **bevy_bitmap_text** — 基于 Bevy 的 Glyph-as-Entity 动态图集文本渲染。
 
 | English                | 简体中文 |
@@ -13,22 +11,28 @@
 
 ## 简介
 
-`bevy_bitmap_text` 是一个面向 [Bevy](https://bevyengine.org/) 的文本渲染后端，将每个字符作为独立的 ECS 实体生成，并附带
-`Sprite` 组件。  
-它解决了整体式文本网格的局限性，允许用户对每个字符施加 ECS 驱动的动画效果，如抖动、波浪和颜色变化。
+在游戏引擎中，标准的文本渲染通常是一个不可分割的整体：整句话会被烘焙成一个单独的网格（Mesh）。但如果你只希望句子中某*一个*
+特定的字母剧烈抖动、上下跳跃，或者动态地改变颜色呢？尤其是对于像素游戏而言，想要在高度抽象的现代文本系统中实现那种充满“复古感”的逐字表现力，往往会让人感到异常沮丧。
 
-使用 `bevy_bitmap_text`，你只需添加 `TextBlock` 组件并配置 `TextBlockStyling`——插件会自动处理光栅化、图集打包、排版布局和实体同步。
+所以我想，要不干脆化繁为简，回到最淳朴的位图思路吧。于是做了 `bevy_bitmap_text` 这个
+crate。它是一个面向 [Bevy](https://bevyengine.org/) 的文本渲染后端，**将每一个字符作为独立的 ECS 实体（Entity）生成**
+，并附带一个标准的 `Sprite` 组件。
+
+通过将字形视为独立的位图精灵（Sprite），它把控制权重新交回给了 Bevy 强大的 ECS 系统。想让一个单词像旗帜一样波动？只需给那些字符实体贴上一个
+`WaveEffect` 组件即可。插件会在幕后自动为你处理繁重的脏活累活：实时字体光栅化、图集动态装箱、排版布局，以及保持所有实体状态同步。
+
+就是这样——一个简单的文本替代方案摆在这里咯。喜欢的话就拿去用吧。
 
 ## 功能特性
 
-* **Glyph-as-Entity 架构** — 每个字符是独立的 `Sprite` 实体，通过标准 ECS 实现逐字动画和样式控制
-* **动态字形图集** — 使用 [fontdue](https://github.com/mooman219/fontdue)
+* 🧩 **Glyph-as-Entity 架构** — 每个字符是独立的 `Sprite` 实体，通过标准 ECS 实现逐字动画和样式控制
+* 🔠 **动态字形图集** — 使用 [fontdue](https://github.com/mooman219/fontdue)
   按需光栅化，通过 [etagere](https://crates.io/crates/etagere) 进行矩形装箱
-* **打字机效果** — 内置 `GlyphReveal` 组件，实现逐字显示
-* **逐字特效** — `ShakeEffect` 和 `WaveEffect` 组件，提供抖动和正弦波动画
-* **颜色标签** — 内联 `{#RRGGBB:文本}` 标记，实现分段着色
-* **文本样式** — 可配置字体、大小、颜色、对齐、锚点、行高、字间距和词间距
-* **自动换行** — 可选的 `max_width` 实现自动换行
+* ⌨️ **打字机效果** — 内置 `GlyphReveal` 组件，实现逐字显示
+* ✨ **逐字特效** — `ShakeEffect` 和 `WaveEffect` 组件，提供抖动和正弦波动画
+* 🎨 **颜色标签** — 内联 `{#RRGGBB:文本}` 标记，实现分段着色
+* 🖌️ **文本样式** — 可配置字体、大小、颜色、对齐、锚点、行高、字间距和词间距
+* ↩️ **自动换行** — 可选的 `max_width` 实现自动换行
 
 ## 使用方法
 
