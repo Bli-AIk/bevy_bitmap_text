@@ -58,13 +58,18 @@ fn rasterize_block_glyphs(
 /// Compute layout for changed text blocks.
 pub fn layout_text_system(
     cache: Res<DynamicGlyphCache>,
+    font_overrides: Option<Res<FontLayoutOverrides>>,
     mut query: Query<
         (&TextBlock, &TextBlockStyling, &mut TextBlockLayout),
         Or<(Changed<TextBlock>, Changed<TextBlockStyling>)>,
     >,
 ) {
     for (block, styling, mut text_layout) in query.iter_mut() {
-        *text_layout = layout::compute_layout(block, styling, &cache);
+        let font_override = font_overrides
+            .as_deref()
+            .and_then(|overrides| overrides.get(&styling.font));
+        *text_layout =
+            layout::compute_layout_with_font_override(block, styling, &cache, font_override);
     }
 }
 

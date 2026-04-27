@@ -27,6 +27,18 @@ pub fn compute_layout(
     styling: &TextBlockStyling,
     cache: &DynamicGlyphCache,
 ) -> TextBlockLayout {
+    compute_layout_with_font_override(block, styling, cache, None)
+}
+
+/// Compute layout while applying an optional per-font layout override.
+///
+/// 计算排版，并可应用字体级排版覆盖。
+pub fn compute_layout_with_font_override(
+    block: &TextBlock,
+    styling: &TextBlockStyling,
+    cache: &DynamicGlyphCache,
+    font_override: Option<&FontLayoutOverride>,
+) -> TextBlockLayout {
     let font_id = &styling.font;
     let size_px = styling.size_px;
 
@@ -149,6 +161,13 @@ pub fn compute_layout(
         glyph.position += shift;
     }
 
+    if let Some(font_override) = font_override {
+        let offset_px = font_override.offset_factor * styling.size_px as f32;
+        for glyph in &mut glyphs {
+            glyph.position += offset_px;
+        }
+    }
+
     TextBlockLayout { glyphs, dimension }
 }
 
@@ -156,4 +175,44 @@ struct LineInfo {
     width: f32,
     start_glyph: usize,
     end_glyph: usize,
+}
+
+#[cfg(test)]
+mod tests {
+    use bevy::asset::Assets;
+    use bevy::image::Image;
+    use bevy::math::Vec2;
+
+    use super::*;
+    use crate::cache::{DynamicGlyphCache, GlyphCacheConfig};
+    use crate::{FontId, FontLayoutOverride};
+
+    #[test]
+    fn font_layout_offset_factor_moves_glyphs_by_world_scale_fraction() {
+        let mut images = Assets::<Image>::default();
+        let cache = DynamicGlyphCache::new(GlyphCacheConfig::default(), &mut images);
+        let block = TextBlock::new("A");
+        let styling = TextBlockStyling {
+            font: FontId::from_name("missing"),
+            size_px: 128,
+            world_scale: 24.0,
+            ..Default::default()
+        };
+
+        let without_offset = compute_layout(&block, &styling, &cache);
+        let with_offset = compute_layout_with_font_override(
+            &block,
+            &styling,
+            &cache,
+            Some(&FontLayoutOverride {
+                offset_factor: Vec2::new(0.0, 0.125),
+            }),
+        );
+
+        let scale = styling.world_scale / styling.size_px as f32;
+        let actual_delta =
+            (with_offset.glyphs[0].position.y - without_offset.glyphs[0].position.y) * scale;
+
+        assert_eq!(actual_delta, 3.0);
+    }
 }

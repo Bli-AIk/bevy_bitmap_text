@@ -22,8 +22,9 @@ pub mod systems;
 
 pub use cache::{DynamicGlyphCache, GlyphAlphaMode, GlyphCacheConfig, GlyphInfo, GlyphKey};
 pub use components::{
-    GlyphBaseOffset, GlyphEntity, GlyphReveal, LayoutGlyph, SegmentStyle, ShakeEffect, TextAlign,
-    TextAnchor, TextBlock, TextBlockLayout, TextBlockStyling, TextSegment, WaveEffect,
+    FontLayoutOverride, FontLayoutOverrides, GlyphBaseOffset, GlyphEntity, GlyphReveal,
+    LayoutGlyph, SegmentStyle, ShakeEffect, TextAlign, TextAnchor, TextBlock, TextBlockLayout,
+    TextBlockStyling, TextSegment, WaveEffect,
 };
 pub use font_id::FontId;
 pub use parse::parse_text_to_segments;
@@ -54,6 +55,7 @@ impl Plugin for BitmapTextPlugin {
             .resource_mut::<bevy::asset::Assets<bevy::image::Image>>();
         let cache = DynamicGlyphCache::new(self.atlas_config.clone(), &mut images);
         app.insert_resource(cache);
+        app.init_resource::<FontLayoutOverrides>();
 
         app.register_type::<FontId>()
             .register_type::<TextAlign>()

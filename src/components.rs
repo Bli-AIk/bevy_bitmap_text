@@ -13,6 +13,8 @@
 //! 定义了位图文本渲染所依赖的 ECS 数据模型。它包括作者侧的文本块、逐字形的排版记录、
 //! 样式与锚点选择，以及后续渲染系统会解释的小型效果组件。
 
+use std::collections::HashMap;
+
 use bevy::color::Srgba;
 use bevy::math::{Rect, Vec2};
 use bevy::prelude::*;
@@ -161,6 +163,49 @@ impl Default for TextBlockStyling {
             word_spacing: 0.0,
             max_width: None,
         }
+    }
+}
+
+/// Per-font layout override applied before glyphs are spawned.
+///
+/// 生成字形实体前应用的字体级排版覆盖。
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FontLayoutOverride {
+    /// Glyph offset as a fraction of `TextBlockStyling::world_scale`.
+    ///
+    /// 字形偏移量，单位为 `TextBlockStyling::world_scale` 的比例。
+    pub offset_factor: Vec2,
+}
+
+impl Default for FontLayoutOverride {
+    fn default() -> Self {
+        Self {
+            offset_factor: Vec2::ZERO,
+        }
+    }
+}
+
+/// Global per-font layout override table.
+///
+/// 全局字体级排版覆盖表。
+#[derive(Resource, Debug, Clone, Default)]
+pub struct FontLayoutOverrides {
+    offsets: HashMap<FontId, FontLayoutOverride>,
+}
+
+impl FontLayoutOverrides {
+    /// Insert or replace the override for a font.
+    ///
+    /// 插入或替换某个字体的排版覆盖。
+    pub fn insert(&mut self, font: FontId, layout: FontLayoutOverride) {
+        self.offsets.insert(font, layout);
+    }
+
+    /// Return the override for a font, if configured.
+    ///
+    /// 返回某个字体的排版覆盖；未配置时返回空。
+    pub fn get(&self, font: &FontId) -> Option<&FontLayoutOverride> {
+        self.offsets.get(font)
     }
 }
 
