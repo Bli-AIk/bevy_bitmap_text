@@ -24,7 +24,7 @@ pub use cache::{DynamicGlyphCache, GlyphAlphaMode, GlyphCacheConfig, GlyphInfo, 
 pub use components::{
     FontLayoutOverride, FontLayoutOverrides, GlyphBaseOffset, GlyphEntity, GlyphReveal,
     LayoutGlyph, SegmentStyle, ShakeEffect, TextAlign, TextAnchor, TextBlock, TextBlockLayout,
-    TextBlockStyling, TextSegment, WaveEffect,
+    TextBlockStyling, TextSegment, TwitchEffect, WaveEffect,
 };
 pub use font_id::FontId;
 pub use parse::parse_text_to_segments;
@@ -70,6 +70,7 @@ impl Plugin for BitmapTextPlugin {
             .register_type::<GlyphBaseOffset>()
             .register_type::<GlyphReveal>()
             .register_type::<ShakeEffect>()
+            .register_type::<TwitchEffect>()
             .register_type::<WaveEffect>();
 
         // Register system set.
@@ -90,7 +91,15 @@ impl Plugin for BitmapTextPlugin {
         );
 
         // Animation systems run in Update (frame-rate dependent).
-        app.add_systems(bevy::app::Update, (text_shake_system, text_wave_system));
+        app.add_systems(
+            bevy::app::Update,
+            (
+                text_shake_system,
+                text_twitch_system,
+                text_twitch_cleanup_system,
+                text_wave_system,
+            ),
+        );
 
         // Load fonts from disk at startup.
         app.add_systems(bevy::app::Startup, load_fonts_from_directories);

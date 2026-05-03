@@ -282,6 +282,21 @@ pub struct ShakeEffect {
     pub intensity: f32,
 }
 
+/// Per-glyph twitch effect — one-frame fixed offset.
+///
+/// While present on a `GlyphEntity`, the glyph's transform receives this fixed
+/// offset relative to its base layout position.
+///
+/// 逐字形闪动效果 — 一帧固定偏移。
+///
+/// 当存在于 `GlyphEntity` 上时，字形相对其基础布局位置获得这个固定偏移。
+#[derive(Component, Debug, Clone, Reflect)]
+#[reflect(Component)]
+pub struct TwitchEffect {
+    /// Pixel offset applied to the glyph.
+    pub offset: Vec2,
+}
+
 /// Per-glyph wave effect.
 ///
 /// While present on a `GlyphEntity`, the glyph oscillates vertically

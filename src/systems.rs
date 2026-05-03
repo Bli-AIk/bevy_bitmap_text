@@ -249,6 +249,30 @@ pub fn text_shake_system(
     }
 }
 
+/// Animate glyphs with `TwitchEffect` using the configured fixed offset.
+pub fn text_twitch_system(
+    mut query: Query<(&TwitchEffect, &GlyphBaseOffset, &mut Transform), Without<ShakeEffect>>,
+) {
+    for (twitch, base, mut transform) in query.iter_mut() {
+        transform.translation.x = base.0.x + twitch.offset.x;
+        transform.translation.y = base.0.y + twitch.offset.y;
+    }
+}
+
+/// Reset glyph transforms when `TwitchEffect` is removed.
+pub fn text_twitch_cleanup_system(
+    mut removed: RemovedComponents<TwitchEffect>,
+    mut query: Query<(&GlyphBaseOffset, &mut Transform)>,
+) {
+    for entity in removed.read() {
+        let Ok((base, mut transform)) = query.get_mut(entity) else {
+            continue;
+        };
+        transform.translation.x = base.0.x;
+        transform.translation.y = base.0.y;
+    }
+}
+
 #[inline]
 fn hash_u64(x: u64) -> u64 {
     let mut z = x.wrapping_add(0x9e37_79b9_7f4a_7c15);
@@ -305,5 +329,30 @@ mod tests {
 
         let transform = app.world().get::<Transform>(entity).unwrap();
         assert_ne!(transform.translation.truncate(), Vec2::new(10.0, 20.0));
+    }
+
+    #[test]
+    fn twitch_cleanup_resets_transform_to_base_offset() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_systems(Update, (text_twitch_system, text_twitch_cleanup_system));
+
+        let entity = app
+            .world_mut()
+            .spawn((
+                GlyphBaseOffset(Vec2::new(10.0, 20.0)),
+                TwitchEffect {
+                    offset: Vec2::new(2.0, -1.0),
+                },
+                Transform::from_xyz(10.0, 20.0, 0.0),
+            ))
+            .id();
+
+        app.update();
+        app.world_mut().entity_mut(entity).remove::<TwitchEffect>();
+        app.update();
+
+        let transform = app.world().get::<Transform>(entity).unwrap();
+        assert_eq!(transform.translation.truncate(), Vec2::new(10.0, 20.0));
     }
 }
