@@ -90,7 +90,10 @@ impl Plugin for BitmapTextPlugin {
         );
 
         // Animation systems run in Update (frame-rate dependent).
-        app.add_systems(bevy::app::Update, (text_shake_system, text_wave_system));
+        app.add_systems(
+            bevy::app::Update,
+            text_wave_system,
+        );
 
         // Load fonts from disk at startup.
         app.add_systems(bevy::app::Startup, load_fonts_from_directories);

@@ -99,7 +99,7 @@ impl TextAlign {
 /// Anchor point for the text block bounding box.
 ///
 /// Values typically range from `(-0.5, -0.5)` (top-left) to `(0.5, 0.5)` (bottom-right).
-/// Default is `(0.5, -0.5)` (bottom-right), matching the Undertale-style dialogue text
+/// Default is `(0.5, -0.5)` (bottom-right), used by dialogue text.
 /// where text grows downward from the top-left.
 #[derive(Debug, Clone, Copy, PartialEq, Reflect)]
 pub struct TextAnchor(pub Vec2);
@@ -139,7 +139,7 @@ pub struct TextBlockStyling {
     pub align: TextAlign,
     /// Anchor point for the text bounding box.
     pub anchor: TextAnchor,
-    /// Line height multiplier (1.0 = tight, 1.375 = Undertale default).
+    /// Line height multiplier (1.0 = tight, 1.375 = spaced).
     pub line_height: f32,
     /// Extra horizontal spacing between characters, in pixels.
     pub char_spacing: f32,
@@ -267,17 +267,19 @@ pub struct GlyphReveal {
     pub visible_count: usize,
 }
 
-/// Per-glyph shake effect.
+/// Per-glyph shake effect — random jitter on each axis per frame.
 ///
-/// While present on a `GlyphEntity`, the glyph's transform is randomly
-/// jittered each frame around its `GlyphBaseOffset`.
+/// While present on a `GlyphEntity`, the glyph's transform receives a
+/// uniformly-distributed pseudo-random offset each frame.
+///
+/// 逐字形抖动效果 — 每帧每个轴的随机抖动。
+///
+/// 当存在于 `GlyphEntity` 上时，字形每帧获得均匀分布的伪随机偏移。
 #[derive(Component, Debug, Clone, Reflect)]
 #[reflect(Component)]
 pub struct ShakeEffect {
     /// Maximum pixel offset in each axis.
     pub intensity: f32,
-    /// Accumulated time (advanced by the shake system).
-    pub elapsed: f32,
 }
 
 /// Per-glyph wave effect.

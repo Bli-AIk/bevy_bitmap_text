@@ -231,22 +231,6 @@ fn apply_reveal_to_children(
     }
 }
 
-/// Animate glyphs with `ShakeEffect` by jittering their position.
-pub fn text_shake_system(
-    time: Res<Time>,
-    mut query: Query<(&mut ShakeEffect, &GlyphBaseOffset, &mut Transform)>,
-) {
-    for (mut shake, base, mut transform) in query.iter_mut() {
-        shake.elapsed += time.delta_secs();
-        // Simple deterministic pseudo-random jitter using elapsed time.
-        let seed = shake.elapsed * 137.0;
-        let dx = (seed.sin() * 1.7 + (seed * 3.1).cos()) * shake.intensity;
-        let dy = ((seed * 2.3).sin() + (seed * 0.7).cos() * 1.3) * shake.intensity;
-        transform.translation.x = base.0.x + dx;
-        transform.translation.y = base.0.y + dy;
-    }
-}
-
 /// Animate glyphs with `WaveEffect` using a sine-wave vertical offset.
 pub fn text_wave_system(
     time: Res<Time>,
