@@ -231,6 +231,32 @@ fn apply_reveal_to_children(
     }
 }
 
+/// Animate glyphs with `ShakeEffect` using hash-based per-frame pseudo-random jitter.
+pub fn text_shake_system(
+    time: Res<Time>,
+    mut query: Query<(Entity, &ShakeEffect, &GlyphBaseOffset, &mut Transform)>,
+) {
+    let frame = (time.elapsed_secs() * 30.0) as u64;
+
+    for (entity, shake, base, mut transform) in query.iter_mut() {
+        let eid = entity.to_bits();
+        let hx = hash_u64(eid ^ frame ^ 0xdead_beef_cafe_babe);
+        let hy = hash_u64(eid ^ frame ^ 0x8bad_f00d_1ced_c0c0);
+        let dx = ((hx as f64 / u64::MAX as f64) as f32 - 0.5) * shake.intensity;
+        let dy = ((hy as f64 / u64::MAX as f64) as f32 - 0.5) * shake.intensity;
+        transform.translation.x = base.0.x + dx;
+        transform.translation.y = base.0.y + dy;
+    }
+}
+
+#[inline]
+fn hash_u64(x: u64) -> u64 {
+    let mut z = x.wrapping_add(0x9e37_79b9_7f4a_7c15);
+    z = (z ^ (z >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
+    z = (z ^ (z >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
+    z ^ (z >> 31)
+}
+
 /// Animate glyphs with `WaveEffect` using a sine-wave vertical offset.
 pub fn text_wave_system(
     time: Res<Time>,
@@ -247,5 +273,37 @@ pub fn text_wave_system(
         let offset = (wave.elapsed * wave.frequency + phase).sin() * wave.amplitude;
         transform.translation.x = base.0.x;
         transform.translation.y = base.0.y + offset;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use bevy::prelude::*;
+
+    use super::*;
+
+    #[test]
+    fn shake_effect_changes_transform_from_base_offset() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_systems(Update, text_shake_system);
+
+        let entity = app
+            .world_mut()
+            .spawn((
+                GlyphEntity {
+                    char_index: 0,
+                    character: 'A',
+                },
+                GlyphBaseOffset(Vec2::new(10.0, 20.0)),
+                ShakeEffect { intensity: 2.0 },
+                Transform::from_xyz(10.0, 20.0, 0.0),
+            ))
+            .id();
+
+        app.update();
+
+        let transform = app.world().get::<Transform>(entity).unwrap();
+        assert_ne!(transform.translation.truncate(), Vec2::new(10.0, 20.0));
     }
 }
