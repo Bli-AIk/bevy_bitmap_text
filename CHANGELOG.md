@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/Bli-AIk/bevy_bitmap_text/compare/v0.2.0...v0.3.0) - 2026-05-04
+
+### Added
+
+- *(core)* add twitch effect and refactor text animation
+
+### Fixed
+
+- *(core)* refactor text animation and add twitch effect
+- restore bitmap text shake system
+
+### Refactor
+
+- move bitmap text shake orchestration
+
 ## [0.2.0](https://github.com/Bli-AIk/bevy_bitmap_text/compare/v0.1.1...v0.2.0) - 2026-04-27
 
 ### Added
