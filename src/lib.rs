@@ -28,7 +28,7 @@ pub use components::{
 };
 pub use font_id::FontId;
 pub use parse::parse_text_to_segments;
-pub use systems::BitmapTextSet;
+pub use systems::{BitmapTextAnimationSet, BitmapTextSet};
 
 use bevy::app::{App, Plugin, PostUpdate};
 use bevy::ecs::schedule::IntoScheduleConfigs;
@@ -40,9 +40,24 @@ pub struct FontDirectories {
 }
 
 /// Plugin that registers all bitmap text systems.
-#[derive(Default)]
 pub struct BitmapTextPlugin {
+    /// Glyph atlas configuration.
+    ///
+    /// 字形图集配置。
     pub atlas_config: GlyphCacheConfig,
+    /// Whether to install glyph animation systems into `Update`.
+    ///
+    /// 是否把字形动画系统安装到 `Update`。
+    pub register_animation_systems: bool,
+}
+
+impl Default for BitmapTextPlugin {
+    fn default() -> Self {
+        Self {
+            atlas_config: GlyphCacheConfig::default(),
+            register_animation_systems: true,
+        }
+    }
 }
 
 impl Plugin for BitmapTextPlugin {
@@ -90,16 +105,10 @@ impl Plugin for BitmapTextPlugin {
                 .in_set(BitmapTextSet),
         );
 
-        // Animation systems run in Update (frame-rate dependent).
-        app.add_systems(
-            bevy::app::Update,
-            (
-                text_shake_system,
-                text_twitch_system,
-                text_twitch_cleanup_system,
-                text_wave_system,
-            ),
-        );
+        if self.register_animation_systems {
+            // Animation systems run in Update by default (frame-rate dependent).
+            app.add_systems(bevy::app::Update, systems::bitmap_text_animation_systems());
+        }
 
         // Load fonts from disk at startup.
         app.add_systems(bevy::app::Startup, load_fonts_from_directories);

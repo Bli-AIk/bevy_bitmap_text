@@ -13,6 +13,8 @@
 //! 包含让位图文本实体与其数据保持同步的 ECS 系统。它会栅格化所需字形，在文本变化时
 //! 重新计算布局，生成并更新逐字形子实体，并把 reveal 状态应用到最终渲染出的字符上。
 
+use bevy::ecs::schedule::{IntoScheduleConfigs, ScheduleConfigs};
+use bevy::ecs::system::ScheduleSystem;
 use bevy::prelude::*;
 
 use crate::cache::{DynamicGlyphCache, GlyphKey};
@@ -20,8 +22,29 @@ use crate::components::*;
 use crate::layout;
 
 /// System set for bitmap text systems (runs in PostUpdate).
+///
+/// 位图文本系统集（在 PostUpdate 中运行）。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemSet)]
 pub struct BitmapTextSet;
+
+/// System set for bitmap text animation systems.
+///
+/// 位图文本动画系统集。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemSet)]
+pub struct BitmapTextAnimationSet;
+
+/// Returns the bitmap text animation systems.
+///
+/// 返回位图文本动画系统。
+pub fn bitmap_text_animation_systems() -> ScheduleConfigs<ScheduleSystem> {
+    (
+        text_shake_system,
+        text_twitch_system,
+        text_twitch_cleanup_system,
+        text_wave_system,
+    )
+        .in_set(BitmapTextAnimationSet)
+}
 
 /// Rasterize any new glyphs needed by changed text blocks.
 pub fn rasterize_glyphs_system(
